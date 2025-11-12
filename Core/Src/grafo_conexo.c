@@ -21,12 +21,12 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
     // Passo 2: Loop principal do DFS (enquanto pilha não vazia)
     while (topo >= 0)
     {
-        atual = pilha[topo--]; // 1. Desempilha vértice atual
+        atual = pilha[topo--]; // Passo 3: Desempilha vértice atual
 
-        // Passo 3: Pede linha do `atual`
+        // Passo 4: Pede linha do `atual`
         imprimirMensagem(huart, "ENVIAR_LINHA:%d\n", atual);
 
-        // Passo 4: Recebe a linha (89 bytes)
+        // Passo 5: Recebe a linha (89 bytes)
         for (int i = 0; i < num_vertices; i++)
         {
             uint8_t byte;
@@ -46,7 +46,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
 
         imprimirLinha(huart, atual);
 
-        // Passo 5: Identifica vizinhos e empilha
+        // Passo 6: Identifica vizinhos e empilha
         for (int j = 0; j < num_vertices; j++)
         {
             if (linha[j] == '1' && !visitado[j])
@@ -97,71 +97,3 @@ void imprimirMensagem(UART_HandleTypeDef *huart, const char *fmt, ...)
     va_end(args);
     HAL_UART_Transmit(huart, (uint8_t*)buffer, strlen(buffer), HAL_MAX_DELAY);
 }
-
-/*
-void imprimirGrafo(UART_HandleTypeDef *huart, int dim)
-{
-    imprimirMensagem(huart, "Matriz recebida [%dx%d]:\r\n", dim, dim);
-    for (int i = 0; i < dim; i++)
-    {
-        char linha[128] = {0};
-        int len = 0;
-        for (int j = 0; j < dim; j++)
-            len += snprintf(linha + len, sizeof(linha) - len, "%c ", grafo[i][j]);
-        linha[len - 1] = '\r';
-        linha[len] = '\n';
-        HAL_UART_Transmit(huart, (uint8_t*)linha, len + 1, HAL_MAX_DELAY);
-    }
-    imprimirMensagem(huart, "Fim da matriz.\r\n");
-}
-
-int parse_and_fill_matrix(UART_HandleTypeDef *huart, char *str)
-{
-    char *p = str;
-    int bits = 0;
-    int dim = 0;
-
-    imprimirMensagem(huart, "DEBUG: rx_data+1 = [%s]\r\n", str);
-
-    // === 1. CONTAR TOTAL DE BITS (0s e 1s) ===
-    for (char *temp = str; *temp != '\0'; temp++)
-    {
-        if (*temp == '0' || *temp == '1')
-            bits++;
-    }
-
-    // === 2. CALCULAR DIMENSÃO: √bits ===
-    for (dim = 1; dim <= VERTICES_MAX; dim++)
-    {
-        if (dim * dim == bits)
-            break;
-    }
-
-    if (dim > VERTICES_MAX || dim * dim != bits)
-    {
-        imprimirMensagem(huart, "Erro: matriz nao quadrada (bits=%d)\r\n", bits);
-        return 0;
-    }
-
-    // === 3. PREENCHER A MATRIZ ===
-    p = str;
-    int row = 0, col = 0;
-
-    while (*p != '\0')
-    {
-        if (*p == '0' || *p == '1')
-        {
-            grafo[row][col++] = *p;
-
-            if (col == dim)
-            {
-                col = 0;
-                row++;
-            }
-        }
-        p++;
-    }
-
-    return dim;  // ← RETORNA A DIMENSÃO (5)
-}
-*/

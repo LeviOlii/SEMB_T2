@@ -307,7 +307,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
     while (topo >= 0)
  800028e:	e098      	b.n	80003c2 <verificarConectividade+0x17e>
     {
-        atual = pilha[topo--]; // 1. Desempilha vértice atual
+        atual = pilha[topo--]; // Passo 3: Desempilha vértice atual
  8000290:	21d4      	movs	r1, #212	@ 0xd4
  8000292:	187b      	adds	r3, r7, r1
  8000294:	681b      	ldr	r3, [r3, #0]
@@ -321,7 +321,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
  80002a4:	18b9      	adds	r1, r7, r2
  80002a6:	600b      	str	r3, [r1, #0]
 
-        // Passo 3: Pede linha do `atual`
+        // Passo 4: Pede linha do `atual`
         imprimirMensagem(huart, "ENVIAR_LINHA:%d\n", atual);
  80002a8:	18bb      	adds	r3, r7, r2
  80002aa:	681a      	ldr	r2, [r3, #0]
@@ -330,7 +330,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
  80002b0:	0018      	movs	r0, r3
  80002b2:	f000 f961 	bl	8000578 <imprimirMensagem>
 
-        // Passo 4: Recebe a linha (89 bytes)
+        // Passo 5: Recebe a linha (89 bytes)
         for (int i = 0; i < num_vertices; i++)
  80002b6:	2300      	movs	r3, #0
  80002b8:	22d0      	movs	r2, #208	@ 0xd0
@@ -426,7 +426,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
  800034e:	0018      	movs	r0, r3
  8000350:	f000 f868 	bl	8000424 <imprimirLinha>
 
-        // Passo 5: Identifica vizinhos e empilha
+        // Passo 6: Identifica vizinhos e empilha
         for (int j = 0; j < num_vertices; j++)
  8000354:	2300      	movs	r3, #0
  8000356:	22cc      	movs	r2, #204	@ 0xcc
