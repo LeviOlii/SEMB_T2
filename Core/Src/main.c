@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdarg.h>
+int a = 1;
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
