@@ -7,7 +7,7 @@ char linha[90];
 char visitado[VERTICES_MAX];
 char pilha[VERTICES_MAX];
 
-int verificarConectividade(UART_HandleTypeDef *huart, int dim)
+int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
 {
     uint8_t visitado[89] = {0};
     uint8_t pilha[89];
@@ -27,7 +27,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int dim)
         imprimirMensagem(huart, "ENVIAR_LINHA:%d\n", atual);
 
         // Passo 4: Recebe a linha (89 bytes)
-        for (int i = 0; i < dim; i++)
+        for (int i = 0; i < num_vertices; i++)
         {
             uint8_t byte;
             if (HAL_UART_Receive(huart, &byte, 1, 5000) != HAL_OK)
@@ -42,12 +42,12 @@ int verificarConectividade(UART_HandleTypeDef *huart, int dim)
             }
             linha[i] = byte;
         }
-        linha[dim] = '\0';
+        linha[num_vertices] = '\0';
 
         imprimirLinha(huart, atual);
 
         // Passo 5: Identifica vizinhos e empilha
-        for (int j = 0; j < dim; j++)
+        for (int j = 0; j < num_vertices; j++)
         {
             if (linha[j] == '1' && !visitado[j])
             {
@@ -58,7 +58,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int dim)
     }
 
     // Verifica conectividade
-    for (int i = 0; i < dim; i++)
+    for (int i = 0; i < num_vertices; i++)
         if (!visitado[i]) return 0;
     return 1;
 }

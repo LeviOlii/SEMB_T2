@@ -63,27 +63,27 @@ int main(void)
   imprimirMensagem(&huart2, "\r\n=== T2 - Grafos (STREAMING 89x89) ===\r\n");
   imprimirMensagem(&huart2, "ENVIAR_NUM_VERTICES:\n");
 
-  // === RECEBE DIMENSÃO ===
-  char dim_str[4] = {0};
-  int dim = 0;
+  // === RECEBE NÚMERO DE VÉRTICES ===
+  char vertices_str[4] = {0};
+  int num_vertices = 0;
   for (int i = 0; i < 3; i++)
   {
       uint8_t byte;
       HAL_UART_Receive(&huart2, &byte, 1, HAL_MAX_DELAY);
-      if (byte >= '0' && byte <= '9') dim_str[i] = byte;
+      if (byte >= '0' && byte <= '9') vertices_str[i] = byte;
   }
-  dim = atoi(dim_str);
+  num_vertices = atoi(vertices_str);
 
-  if (dim <= 0 || dim > 89)
+  if (num_vertices <= 0 || num_vertices > 89)
   {
-      imprimirMensagem(&huart2, "Erro: dim invalida %d\r\n", dim);
+      imprimirMensagem(&huart2, "Erro: número de vértices invalido %d\r\n", num_vertices);
       while(1);
   }
 
-  imprimirMensagem(&huart2, "Grafo %dx%d (streaming)\r\n", dim, dim);
+  imprimirMensagem(&huart2, "Grafo %dx%d (streaming)\r\n", num_vertices, num_vertices);
 
   // === EXECUTA DFS STREAMING ===
-  int conexo = verificarConectividade(&huart2, dim);
+  int conexo = verificarConectividade(&huart2, num_vertices);
   imprimirResultado(&huart2, conexo);
 
   imprimirMensagem(&huart2, "Aguardando proxima matriz...\r\n");
@@ -174,34 +174,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-/*void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-    if (huart->Instance == USART2)
-    {
-        uint8_t byte = rx_buffer[0];
-
-        if (rx_index < RX_BUFFER_SIZE - 1)
-        {
-            rx_data[rx_index++] = byte;
-
-            if (byte == ']')
-            {
-                rx_data[rx_index - 1] = '\0';  // ← ADICIONA \0 APÓS ]
-                rx_ready = 1;
-            }
-        }
-        else
-        {
-            rx_index = 0;
-            rx_data[0] = '\0';
-            imprimirMensagem(&huart2, "Erro: buffer overflow.\r\n");
-        }
-
-        HAL_UART_Receive_IT(&huart2, rx_buffer, 1);
-    }
-}*/
-
 /* USER CODE END 4 */
 
 /**
