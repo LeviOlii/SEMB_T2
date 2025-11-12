@@ -1,0 +1,4 @@
+../Core/Src/grafo_conexo.c:10:5:verificarConectividade	232	static
+../Core/Src/grafo_conexo.c:66:6:imprimirLinha	168	static
+../Core/Src/grafo_conexo.c:83:6:imprimirResultado	24	static
+../Core/Src/grafo_conexo.c:91:6:imprimirMensagem	156	static
