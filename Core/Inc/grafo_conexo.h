@@ -12,7 +12,8 @@ int inicializarGrafoMock(void);
 int verificarConectividade(UART_HandleTypeDef *huart, int dim);
 void imprimirResultado(UART_HandleTypeDef *huart, int conexo);
 void imprimirMensagem(UART_HandleTypeDef *huart, const char *fmt, ...);
-int parse_and_fill_matrix(UART_HandleTypeDef *huart, char *str);
-void imprimirGrafo(UART_HandleTypeDef *huart, int n);
+void imprimirLinha(UART_HandleTypeDef *huart, int idx);
+/*int parse_and_fill_matrix(UART_HandleTypeDef *huart, char *str);
+void imprimirGrafo(UART_HandleTypeDef *huart, int n);*/
 
 #endif

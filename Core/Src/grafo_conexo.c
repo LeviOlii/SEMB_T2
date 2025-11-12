@@ -3,14 +3,14 @@
 #include <stdio.h>
 #include <stdarg.h>
 
-char linha[90];
+char linha[VERTICES_MAX + 1]; //o último seria o \0
 char visitado[VERTICES_MAX];
 char pilha[VERTICES_MAX];
 
 int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
 {
-    uint8_t visitado[89] = {0};
-    uint8_t pilha[89];
+    uint8_t visitado[VERTICES_MAX] = {0};
+    uint8_t pilha[VERTICES_MAX];
     int topo = -1;
     int atual = 0;
 
