@@ -26,7 +26,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int dim)
         // Passo 3: Pede linha do `atual`
         imprimirMensagem(huart, "ENVIAR_LINHA:%d\n", atual);
 
-        // Passo 4: Recebe a linha (89 bits)
+        // Passo 4: Recebe a linha (89 bytes)
         for (int i = 0; i < dim; i++)
         {
             uint8_t byte;

@@ -26,7 +26,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-#define RX_BUFFER_SIZE 2510
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -37,10 +36,6 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-static uint8_t rx_buffer[2];
-static uint8_t rx_data[RX_BUFFER_SIZE];
-static volatile uint16_t rx_index = 0;
-static volatile uint8_t rx_ready = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -180,7 +175,7 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+/*void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 {
     if (huart->Instance == USART2)
     {
@@ -205,7 +200,7 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 
         HAL_UART_Receive_IT(&huart2, rx_buffer, 1);
     }
-}
+}*/
 
 /* USER CODE END 4 */
 
