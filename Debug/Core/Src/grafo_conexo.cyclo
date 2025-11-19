@@ -1,4 +1,4 @@
-../Core/Src/grafo_conexo.c:10:5:verificarConectividade	11
-../Core/Src/grafo_conexo.c:66:6:imprimirLinha	4
-../Core/Src/grafo_conexo.c:83:6:imprimirResultado	2
-../Core/Src/grafo_conexo.c:91:6:imprimirMensagem	1
+../Core/Src/grafo_conexo.c:79:5:verificarConectividade	11
+../Core/Src/grafo_conexo.c:144:6:imprimirLinha	4
+../Core/Src/grafo_conexo.c:167:6:imprimirResultado	2
+../Core/Src/grafo_conexo.c:182:6:imprimirMensagem	1

@@ -1,93 +1,74 @@
 /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
-  * @file    : main.c
-  * @brief   : T2 - Verificação de Conectividade em Grafos (UART + Mock)
-  * @authors : Luís, Levi
-  * @date    : 11/11/2025
+  * @file    main.c
+  * @brief   T2 - Graph Connectivity Verification (Streaming UART)
+  * @authors Luís, Levi
+  * @date    19/11/2025
+  *
+  * This is the entry point for the embedded application running on STM32F030.
+  * It receives the graph dimension, runs DFS streaming, and outputs the result.
+  *
+  * @section FLOW
+  * 1. Send "ENVIAR_NUM_VERTICES:"
+  * 2. Receive "89\n"
+  * 3. Run verificarConectividade()
+  * 4. Print result
+  *
+  * @section REFERENCES
+  * - UM1785: STM32F0 HAL User Manual (p. 568)
+  *
   ******************************************************************************
   */
 /* USER CODE END Header */
 
-/* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "grafo_conexo.h"
 #include <string.h>
 #include <stdio.h>
-#include <stdarg.h>
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-/* USER CODE END Includes */
-
-/* Private typedef -----------------------------------------------------------*/
-/* USER CODE BEGIN PTD */
-/* USER CODE END PTD */
-
-/* Private define ------------------------------------------------------------*/
-/* USER CODE BEGIN PD */
-/* USER CODE END PD */
-
-/* Private macro -------------------------------------------------------------*/
-/* USER CODE BEGIN PM */
-/* USER CODE END PM */
-
-/* Private variables ---------------------------------------------------------*/
+/* Private variables */
 UART_HandleTypeDef huart2;
 
-/* USER CODE BEGIN PV */
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
+/* Function prototypes */
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
-/* USER CODE BEGIN PFP */
-/* USER CODE END PFP */
 
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
 int main(void)
 {
-  HAL_Init();
-  SystemClock_Config();
-  MX_GPIO_Init();
-  MX_USART2_UART_Init();
+    HAL_Init();
+    SystemClock_Config();
+    MX_GPIO_Init();
+    MX_USART2_UART_Init();
 
-  imprimirMensagem(&huart2, "\r\n=== T2 - Grafos (STREAMING 89x89) ===\r\n");
-  imprimirMensagem(&huart2, "ENVIAR_NUM_VERTICES:\n");
+    imprimirMensagem(&huart2, "\r\n=== T2 - Grafos (STREAMING 89x89) ===\r\n");
+    imprimirMensagem(&huart2, "ENVIAR_NUM_VERTICES:\n");
 
-  // === RECEBE NÚMERO DE VÉRTICES ===
-  char vertices_str[4] = {0};
-  int num_vertices = 0;
-  for (int i = 0; i < 3; i++)
-  {
-      uint8_t byte;
-      HAL_UART_Receive(&huart2, &byte, 1, HAL_MAX_DELAY);
-      if (byte >= '0' && byte <= '9') vertices_str[i] = byte;
-  }
-  num_vertices = atoi(vertices_str);
+    // === RECEIVE GRAPH DIMENSION ===
+    char vertices_str[4] = {0};
+    for (int i = 0; i < 3; i++)
+    {
+        uint8_t byte;
+        HAL_UART_Receive(&huart2, &byte, 1, HAL_MAX_DELAY);
+        if (byte >= '0' && byte <= '9') vertices_str[i] = byte;
+    }
+    int num_vertices = atoi(vertices_str);
 
-  if (num_vertices <= 0 || num_vertices > 89)
-  {
-      imprimirMensagem(&huart2, "Erro: número de vértices invalido %d\r\n", num_vertices);
-      while(1);
-  }
+    if (num_vertices <= 0 || num_vertices > 89)
+    {
+        imprimirMensagem(&huart2, "Erro: número de vértices invalido %d\r\n", num_vertices);
+        while(1);
+    }
 
-  imprimirMensagem(&huart2, "Grafo %dx%d (streaming)\r\n", num_vertices, num_vertices);
+    imprimirMensagem(&huart2, "Grafo %dx%d (streaming)\r\n", num_vertices, num_vertices);
 
-  // === EXECUTA DFS STREAMING ===
-  int conexo = verificarConectividade(&huart2, num_vertices);
-  imprimirResultado(&huart2, conexo);
+    // === RUN DFS STREAMING ===
+    int conexo = verificarConectividade(&huart2, num_vertices);
+    imprimirResultado(&huart2, conexo);
 
-  imprimirMensagem(&huart2, "Aguardando proxima matriz...\r\n");
-  while(1) HAL_Delay(100);
+    imprimirMensagem(&huart2, "Aguardando proxima matriz...\r\n");
+    while(1) HAL_Delay(100);
 }
 
 /**
