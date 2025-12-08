@@ -1,0 +1,178 @@
+\doxysection{Core/\+Src/grafo\+\_\+conexo.c File Reference}
+\hypertarget{grafo__conexo_8c}{}\label{grafo__conexo_8c}\index{Core/Src/grafo\_conexo.c@{Core/Src/grafo\_conexo.c}}
+
+
+Graph connectivity module (DFS with UART row streaming).  
+
+
+{\ttfamily \#include "{}grafo\+\_\+conexo.\+h"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdarg.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{grafo__conexo_8c_a445768159818e50d9305a8b56c864a25}{verificar\+Conectividade}} (UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}huart, int num\+\_\+vertices)
+\begin{DoxyCompactList}\small\item\em Verifies if the graph is connected using iterative DFS with UART streaming. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{grafo__conexo_8c_abfdaa984f6233f34a6522bee1a8ef185}{imprimir\+Linha}} (UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}huart, int idx)
+\begin{DoxyCompactList}\small\item\em Prints a truncated version of the current adjacency row via UART. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{grafo__conexo_8c_a6315d7412815ad02600fe7c1f5e7f976}{imprimir\+Resultado}} (UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}huart, int conexo)
+\begin{DoxyCompactList}\small\item\em Sends the final connectivity result via UART. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{grafo__conexo_8c_a0f2c2b944238fda6f8ce8345b5953f98}{imprimir\+Mensagem}} (UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}huart, const char \texorpdfstring{$\ast$}{*}fmt,...)
+\begin{DoxyCompactList}\small\item\em Prints a formatted message via UART (printf-\/like). \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{grafo__conexo_8c_a00ee4e266f44ca62e4cfea414a5268d5}\label{grafo__conexo_8c_a00ee4e266f44ca62e4cfea414a5268d5} 
+char {\bfseries linha} \mbox{[}\mbox{\hyperlink{grafo__conexo_8h_a7e28ed72ec0146c6b22cf26e05c5c849}{VERTICES\+\_\+\+MAX}}+1\mbox{]}
+\begin{DoxyCompactList}\small\item\em Buffer to store the current adjacency row (89 bytes + \textquotesingle{}\textbackslash{}0\textquotesingle{}). \end{DoxyCompactList}\item 
+\Hypertarget{grafo__conexo_8c_a2fd4186ccf7d897c01aea1ed890bee71}\label{grafo__conexo_8c_a2fd4186ccf7d897c01aea1ed890bee71} 
+uint8\+\_\+t {\bfseries visitado} \mbox{[}\mbox{\hyperlink{grafo__conexo_8h_a7e28ed72ec0146c6b22cf26e05c5c849}{VERTICES\+\_\+\+MAX}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Array to mark visited vertices during DFS. \end{DoxyCompactList}\item 
+\Hypertarget{grafo__conexo_8c_aa81b755a958beedf41361c628061c136}\label{grafo__conexo_8c_aa81b755a958beedf41361c628061c136} 
+uint8\+\_\+t {\bfseries pilha} \mbox{[}\mbox{\hyperlink{grafo__conexo_8h_a7e28ed72ec0146c6b22cf26e05c5c849}{VERTICES\+\_\+\+MAX}}\mbox{]}
+\begin{DoxyCompactList}\small\item\em Stack to store vertices to visit (iterative DFS). \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Graph connectivity module (DFS with UART row streaming). 
+
+\begin{DoxyAuthor}{Authors}
+Levi Oliveira, Luís Fernando 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+12/11/2025 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+1.\+1
+\end{DoxyVersion}
+\hypertarget{grafo__conexo_8c_PURPOSE}{}\doxysubsection{\texorpdfstring{Module Purpose}{Module Purpose}}\label{grafo__conexo_8c_PURPOSE}
+This module implements a memory-\/efficient iterative Depth-\/\+First Search (DFS) to verify whether an undirected graph is connected. The graph is represented as an adjacency matrix but {\bfseries{only one row is ever stored in RAM}} at a time.
+
+The STM32\+F030 has only 8 KB of RAM; therefore the full 89×89 matrix cannot be stored. This module requests each adjacency row on-\/demand from UART.\hypertarget{grafo__conexo_8c_DATA_STRUCTURES}{}\doxysubsection{\texorpdfstring{Internal Data Structures}{Internal Data Structures}}\label{grafo__conexo_8c_DATA_STRUCTURES}
+The following global buffers are intentionally allocated here, since they belong to the graph algorithm rather than to the main application\+:
+
+
+\begin{DoxyItemize}
+\item char linha\mbox{[}90\mbox{]} Stores one adjacency row (89 bytes + \textquotesingle{}\textbackslash{}0\textquotesingle{} terminator).
+\item uint8\+\_\+t visitado\mbox{[}89\mbox{]} Marks whether each vertex has been visited during DFS.
+\item uint8\+\_\+t pilha\mbox{[}89\mbox{]} Stack used for the iterative DFS.
+\end{DoxyItemize}
+
+Total RAM usage of the module\+: \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}\texorpdfstring{$\sim$}{\string~}268 bytes\texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}.\hypertarget{grafo__conexo_8c_ALGORITHM}{}\doxysubsection{\texorpdfstring{Algorithm Description}{Algorithm Description}}\label{grafo__conexo_8c_ALGORITHM}
+
+\begin{DoxyEnumerate}
+\item Start DFS at vertex 0.
+\item While the stack is not empty\+:
+\begin{DoxyItemize}
+\item Pop current vertex.
+\item Request its adjacency row via UART.
+\item For every neighbor marked \textquotesingle{}1\textquotesingle{}\+: push it if not visited.
+\end{DoxyItemize}
+\item After DFS, check whether all vertices were visited.
+\end{DoxyEnumerate}
+
+Returns\+: 1 → graph is connected 0 → graph is not connected -\/1 → communication error (timeout or invalid byte)\hypertarget{grafo__conexo_8c_NOTE}{}\doxysubsection{\texorpdfstring{NOTE}{NOTE}}\label{grafo__conexo_8c_NOTE}
+This module does not deal with hardware initialization or application-\/level flow; those responsibilities are handled in \doxylink{main_8c}{main.\+c}. 
+
+\label{doc-func-members}
+\Hypertarget{grafo__conexo_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{grafo__conexo_8c_abfdaa984f6233f34a6522bee1a8ef185}\index{grafo\_conexo.c@{grafo\_conexo.c}!imprimirLinha@{imprimirLinha}}
+\index{imprimirLinha@{imprimirLinha}!grafo\_conexo.c@{grafo\_conexo.c}}
+\doxysubsubsection{\texorpdfstring{imprimirLinha()}{imprimirLinha()}}
+{\footnotesize\ttfamily \label{grafo__conexo_8c_abfdaa984f6233f34a6522bee1a8ef185} 
+void imprimir\+Linha (\begin{DoxyParamCaption}\item[{UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{huart}{, }\item[{int}]{idx}{}\end{DoxyParamCaption})}
+
+
+
+Prints a truncated version of the current adjacency row via UART. 
+
+Prints current adjacency row (debug).
+
+Shows first 50 bits + "{}..."{} if longer. Used for debugging.
+
+
+\begin{DoxyParams}{Parameters}
+{\em huart} & Pointer to UART handle \\
+\hline
+{\em idx} & Index of the current vertex (for labeling)\\
+\hline
+\end{DoxyParams}
+\begin{DoxyNote}{Note}
+Uses global variable\+: linha\mbox{[}\mbox{]} 
+\end{DoxyNote}
+\Hypertarget{grafo__conexo_8c_a0f2c2b944238fda6f8ce8345b5953f98}\index{grafo\_conexo.c@{grafo\_conexo.c}!imprimirMensagem@{imprimirMensagem}}
+\index{imprimirMensagem@{imprimirMensagem}!grafo\_conexo.c@{grafo\_conexo.c}}
+\doxysubsubsection{\texorpdfstring{imprimirMensagem()}{imprimirMensagem()}}
+{\footnotesize\ttfamily \label{grafo__conexo_8c_a0f2c2b944238fda6f8ce8345b5953f98} 
+void imprimir\+Mensagem (\begin{DoxyParamCaption}\item[{UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{huart}{, }\item[{const char \texorpdfstring{$\ast$}{*}}]{fmt}{, }\item[{}]{...}{}\end{DoxyParamCaption})}
+
+
+
+Prints a formatted message via UART (printf-\/like). 
+
+Prints formatted message.
+
+
+\begin{DoxyParams}{Parameters}
+{\em huart} & Pointer to UART handle \\
+\hline
+{\em fmt} & Format string \\
+\hline
+{\em ...} & Variable arguments \\
+\hline
+\end{DoxyParams}
+\Hypertarget{grafo__conexo_8c_a6315d7412815ad02600fe7c1f5e7f976}\index{grafo\_conexo.c@{grafo\_conexo.c}!imprimirResultado@{imprimirResultado}}
+\index{imprimirResultado@{imprimirResultado}!grafo\_conexo.c@{grafo\_conexo.c}}
+\doxysubsubsection{\texorpdfstring{imprimirResultado()}{imprimirResultado()}}
+{\footnotesize\ttfamily \label{grafo__conexo_8c_a6315d7412815ad02600fe7c1f5e7f976} 
+void imprimir\+Resultado (\begin{DoxyParamCaption}\item[{UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{huart}{, }\item[{int}]{conexo}{}\end{DoxyParamCaption})}
+
+
+
+Sends the final connectivity result via UART. 
+
+Prints connectivity result.
+
+
+\begin{DoxyParams}{Parameters}
+{\em huart} & Pointer to UART handle \\
+\hline
+{\em conexo} & 1 if connected, 0 otherwise \\
+\hline
+\end{DoxyParams}
+\Hypertarget{grafo__conexo_8c_a445768159818e50d9305a8b56c864a25}\index{grafo\_conexo.c@{grafo\_conexo.c}!verificarConectividade@{verificarConectividade}}
+\index{verificarConectividade@{verificarConectividade}!grafo\_conexo.c@{grafo\_conexo.c}}
+\doxysubsubsection{\texorpdfstring{verificarConectividade()}{verificarConectividade()}}
+{\footnotesize\ttfamily \label{grafo__conexo_8c_a445768159818e50d9305a8b56c864a25} 
+int verificar\+Conectividade (\begin{DoxyParamCaption}\item[{UART\+\_\+\+Handle\+Type\+Def \texorpdfstring{$\ast$}{*}}]{huart}{, }\item[{int}]{num\+\_\+vertices}{}\end{DoxyParamCaption})}
+
+
+
+Verifies if the graph is connected using iterative DFS with UART streaming. 
+
+Runs a DFS-\/based connectivity test using streamed rows via UART.
+
+The algorithm starts at vertex 0 and explores the graph by requesting adjacency rows on demand via UART. Each row is processed to find unvisited neighbors.
+
+
+\begin{DoxyParams}{Parameters}
+{\em huart} & Pointer to UART handle (USART2) \\
+\hline
+{\em num\+\_\+vertices} & Number of vertices in the graph (89) \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+
+\begin{DoxyItemize}
+\item 1 if graph is connected
+\item 0 if not connected
+\item -\/1 on communication error (timeout or invalid bit)
+\end{DoxyItemize}
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+Global variables affected\+: linha\mbox{[}\mbox{]}, visitado\mbox{[}\mbox{]}, pilha\mbox{[}\mbox{]} 
+
+Conforms to UM1785 (p. 568)\+: HAL\+\_\+\+UART\+\_\+\+Receive() with timeout 
+\end{DoxyNote}

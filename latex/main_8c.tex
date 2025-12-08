@@ -1,0 +1,134 @@
+\doxysection{Core/\+Src/main.c File Reference}
+\hypertarget{main_8c}{}\label{main_8c}\index{Core/Src/main.c@{Core/Src/main.c}}
+
+
+\+: Application entry point for T2 – Graph Connectivity Check  
+
+
+{\ttfamily \#include "{}main.\+h"{}}\newline
+{\ttfamily \#include "{}grafo\+\_\+conexo.\+h"{}}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{main_8c_a70af21c671abfcc773614a9a4f63d920}{System\+Clock\+\_\+\+Config}} (void)
+\begin{DoxyCompactList}\small\item\em System Clock Configuration. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{main_8c_a840291bc02cba5474a4cb46a9b9566fe}{main}} (void)
+\begin{DoxyCompactList}\small\item\em Application entry point. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{main_8c_a1730ffe1e560465665eb47d9264826f9}{Error\+\_\+\+Handler}} (void)
+\begin{DoxyCompactList}\small\item\em This function is executed in case of error occurrence. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\Hypertarget{main_8c_aa9479c261d65eecedd3d9582f7f0f89c}\label{main_8c_aa9479c261d65eecedd3d9582f7f0f89c} 
+UART\+\_\+\+Handle\+Type\+Def {\bfseries huart2}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\+: Application entry point for T2 – Graph Connectivity Check 
+
+\begin{DoxyAuthor}{Authors}
+\+: Levi Oliveira, Luís Fernando 
+\end{DoxyAuthor}
+\begin{DoxyDate}{Date}
+\+: 20/11/2025 
+\end{DoxyDate}
+\begin{DoxyVersion}{Version}
+\+: 1.\+1
+\end{DoxyVersion}
+\hypertarget{main_8c_OVERVIEW}{}\doxysubsection{\texorpdfstring{Application Overview}{Application Overview}}\label{main_8c_OVERVIEW}
+This firmware runs on the STM32\+F030 (Nucleo-\/\+F030\+R8) and determines whether an undirected graph is connected. The graph has up to 89 vertices and its adjacency matrix is streamed on-\/demand via UART from a host computer.
+
+The embedded system\+:
+\begin{DoxyItemize}
+\item Initializes hardware peripherals (clock, GPIO, USART2);
+\item Requests the number of vertices via UART;
+\item Requests each adjacency row dynamically;
+\item Delegates the connectivity computation to the graph module (\doxylink{grafo__conexo_8c}{grafo\+\_\+conexo.\+c});
+\item Prints the final result on the serial terminal.
+\end{DoxyItemize}\hypertarget{main_8c_CONTEXT}{}\doxysubsection{\texorpdfstring{Academic Context}{Academic Context}}\label{main_8c_CONTEXT}
+This project corresponds to T2 from the Embedded Systems course. The goal is to port an algorithm validated on PC (T1) to the STM32\+F030, respecting strict memory constraints (8 KB RAM).
+
+T1 → Algorithm design and validation (unrestricted resources). T2 → Embedded implementation under hardware limitations.
+
+Teacher\+: Elias Teodoro da Silva Júnior Institute\+: Instituto Federal do Ceará -\/ Campus Fortaleza\hypertarget{main_8c_USAGE}{}\doxysubsection{\texorpdfstring{How to Use}{How to Use}}\label{main_8c_USAGE}
+
+\begin{DoxyEnumerate}
+\item Flash this firmware to a Nucleo-\/\+F030\+R8 board.
+\item Run the host script\+: {\ttfamily python generate\+\_\+and\+\_\+test.\+py}.
+\item Open a serial terminal (38400 baud).
+\item Observe the MCU requesting vertex count and adjacency rows automatically.
+\item The final result is printed\+: connected / not connected.
+\end{DoxyEnumerate}\hypertarget{main_8c_IO_SPEC}{}\doxysubsection{\texorpdfstring{Input \& Output (High-\/\+Level)}{Input \& Output (High-\/\+Level)}}\label{main_8c_IO_SPEC}
+Input → adjacency matrix streamed line-\/by-\/line via UART. Output → textual indication of graph connectivity.\hypertarget{main_8c_RESPONSIBILITY}{}\doxysubsection{\texorpdfstring{Module Separation}{Module Separation}}\label{main_8c_RESPONSIBILITY}
+
+\begin{DoxyItemize}
+\item \doxylink{main_8c}{main.\+c} handles\+: • hardware initialization • UART communication setup • high-\/level application flow • interaction with the host PC
+\item \doxylink{grafo__conexo_8c}{grafo\+\_\+conexo.\+c} handles\+: • DFS-\/based connectivity algorithm • data structures used for DFS • RAM-\/efficient streaming of adjacency rows
+\end{DoxyItemize}\hypertarget{main_8c_COPYRIGHT}{}\doxysubsection{\texorpdfstring{Copyright \& License}{Copyright \& License}}\label{main_8c_COPYRIGHT}
+Copyright (c) 2025 Levi Oliveira, Luís Fernando. All rights reserved. Academic use and reproduction allowed with proper attribution.\hypertarget{main_8c_PLATFORM}{}\doxysubsection{\texorpdfstring{Target Platform}{Target Platform}}\label{main_8c_PLATFORM}
+MCU \+: STM32\+F030\+R8\+T6 (Cortex-\/\+M0, 48 MHz, 8 KB RAM, 64 KB Flash) Toolchain \+: STM32\+Cube\+IDE + HAL Library Reference \+: UM1785 – STM32\+F0 HAL User Manual (p. 7 and p. 568) 
+
+\label{doc-func-members}
+\Hypertarget{main_8c_doc-func-members}
+\doxysubsection{Function Documentation}
+\Hypertarget{main_8c_a1730ffe1e560465665eb47d9264826f9}\index{main.c@{main.c}!Error\_Handler@{Error\_Handler}}
+\index{Error\_Handler@{Error\_Handler}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{Error\_Handler()}{Error\_Handler()}}
+{\footnotesize\ttfamily \label{main_8c_a1730ffe1e560465665eb47d9264826f9} 
+void Error\+\_\+\+Handler (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+This function is executed in case of error occurrence. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}
+\Hypertarget{main_8c_a840291bc02cba5474a4cb46a9b9566fe}\index{main.c@{main.c}!main@{main}}
+\index{main@{main}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily \label{main_8c_a840291bc02cba5474a4cb46a9b9566fe} 
+int main (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+Application entry point. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em int} & (never returns)\\
+\hline
+\end{DoxyRetVals}
+Main execution flow\+:
+\begin{DoxyEnumerate}
+\item Initializes HAL, system clock, GPIO (unused) and USART2
+\item Sends startup banner and requests number of vertices of graph
+\item Receives "{}89"{} in ASCII format and converts to integer
+\item Executes streaming DFS connectivity test
+\item Prints final result
+\item Waits for next test (useful for automated validation) 
+\end{DoxyEnumerate}Buffer to receive the three ASCII digits that form the number of vertices Example\+: \textquotesingle{}8\textquotesingle{},\textquotesingle{}9\textquotesingle{},\textquotesingle{}~\newline
+\textquotesingle{} → "{}89"{}
+
+Receive exactly 3 bytes (we only accept digits 0–9). This is a simple and robust way to get the dimension without needing a full parser.
+
+Execute the connectivity test. The function requests adjacency rows on demand and uses only \texorpdfstring{$\sim$}{\string~}268 bytes RAM. Returns 1 (connected), 0 (not connected) or -\/1 (communication error).\Hypertarget{main_8c_a70af21c671abfcc773614a9a4f63d920}\index{main.c@{main.c}!SystemClock\_Config@{SystemClock\_Config}}
+\index{SystemClock\_Config@{SystemClock\_Config}!main.c@{main.c}}
+\doxysubsubsection{\texorpdfstring{SystemClock\_Config()}{SystemClock\_Config()}}
+{\footnotesize\ttfamily \label{main_8c_a70af21c671abfcc773614a9a4f63d920} 
+void System\+Clock\+\_\+\+Config (\begin{DoxyParamCaption}\item[{void}]{}{}\end{DoxyParamCaption})}
+
+
+
+System Clock Configuration. 
+
+
+\begin{DoxyRetVals}{Return values}
+{\em None} & \\
+\hline
+\end{DoxyRetVals}

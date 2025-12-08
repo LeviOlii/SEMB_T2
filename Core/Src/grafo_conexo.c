@@ -1,48 +1,55 @@
 /**
   ******************************************************************************
   * @file    grafo_conexo.c
-  * @brief   T2 - Graph Connectivity Verification using DFS (Streaming UART)
-  * @authors Luís, Levi
+  * @brief   Graph connectivity module (DFS with UART row streaming)
+  * @authors Levi Oliveira, Luís Fernando
   * @date    12/11/2025
+  * @version 1.1
   *
-  * @section DESCRIPTION
-  * This application implements a **Depth-First Search (DFS)** algorithm to verify
-  * if an undirected graph is connected. The graph is represented as an adjacency
-  * matrix (89x89) and is **streamed line-by-line via UART** to fit in the STM32F030
-  * limited RAM (8 KB).
+  * @section PURPOSE Module Purpose
+  * This module implements a memory-efficient iterative Depth-First Search (DFS)
+  * to verify whether an undirected graph is connected. The graph is represented
+  * as an adjacency matrix but **only one row is ever stored in RAM** at a time.
   *
-  * The algorithm uses **iterative DFS with stack** and requires **only 360 bytes**
-  * of RAM: `linha[90]`, `visitado[89]`, `pilha[89]`.
+  * The STM32F030 has only 8 KB of RAM; therefore the full 89×89 matrix cannot
+  * be stored. This module requests each adjacency row on-demand from UART.
   *
-  * @section INPUT_OUTPUT
-  * **Input (UART):**
-  *  - `"89\n"` → number of vertices of the graph
-  *  - `"101010..."` → 89-byte adjacency row (on demand)
+  * @section DATA_STRUCTURES Internal Data Structures
+  * The following global buffers are intentionally allocated here, since they
+  * belong to the graph algorithm rather than to the main application:
   *
-  * **Output (UART):**
-  *  - `"Resultado: O grafo eh CONEXO.\r\n"` or `"NAO eh conexo.\r\n"`
+  *  - char linha[90]
+  *      Stores one adjacency row (89 bytes + '\0' terminator).
   *
-  * @section PLATFORM
-  * - **Target:** STM32F030 (Nucleo-F030R8)
-  * - **HAL:** STM32CubeF0 HAL (UM1785, p. 568)
-  * - **Baudrate:** 38400, 8N1
+  *  - uint8_t visitado[89]
+  *      Marks whether each vertex has been visited during DFS.
   *
-  * @section COPYRIGHT
-  * Copyright (c) 2025 Luís & Levi. All rights reserved.
-  * This code is for academic use only. Redistribution and commercial use prohibited.
+  *  - uint8_t pilha[89]
+  *      Stack used for the iterative DFS.
   *
-  * @section HOW_TO_USE
-  * 1. Flash this code to STM32F030
-  * 2. Connect UART2 (PA2/TX, PA3/RX) to PC
-  * 3. Run Python script: `python generate_and_test.py`
-  * 4. Observe results in Terminal
+  * Total RAM usage of the module: **~268 bytes**.
   *
-  * @section DOXYGEN
-  * This file is Doxygen-ready. Run:
-  *   doxygen Doxyfile
+  * @section ALGORITHM Algorithm Description
+  * 1. Start DFS at vertex 0.
+  * 2. While the stack is not empty:
+  *      - Pop current vertex.
+  *      - Request its adjacency row via UART.
+  *      - For every neighbor marked '1':
+  *            push it if not visited.
+  * 3. After DFS, check whether all vertices were visited.
+  *
+  * Returns:
+  *   1 → graph is connected
+  *   0 → graph is not connected
+  *  -1 → communication error (timeout or invalid byte)
+  *
+  * @section NOTE
+  * This module does not deal with hardware initialization or application-level
+  * flow; those responsibilities are handled in main.c.
   *
   ******************************************************************************
   */
+
 
 #include "grafo_conexo.h"
 #include <string.h>
@@ -138,7 +145,7 @@ int verificarConectividade(UART_HandleTypeDef *huart, int num_vertices)
  * @param huart Pointer to UART handle
  * @param idx Index of the current vertex (for labeling)
  *
- * @note Uses global: linha[]
+ * @note Uses global variable: linha[]
  */
 void imprimirLinha(UART_HandleTypeDef *huart, int idx)
 {
